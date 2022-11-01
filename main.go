@@ -1,20 +1,31 @@
 package main
 
 import (
-	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 )
 
+type Restaurant struct {
+	Id   int    `json:"id" gorm:"column:id;"`
+	Name string `json:"name" gorm:"column:name;"`
+	Addr string `json:"addr" gorm:"column:addr;"`
+}
+
+func (Restaurant) TableName() string { return "restaurants" }
+
 func main() {
-	fmt.Println("FoodDelivery-Go")
 	dsn := "root:@tcp(127.0.0.1:3306)/?charset=utf8mb4&parseTime=True&loc=Local"
+	//dsn := os.Getenv("MYSQL_CONN_STRING")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Println(db, err)
+	//log.Println(db, err)
+
+	newRestaurant := Restaurant{Name: "Trau Ngon Quan", Addr: "So 1 Nguyen Van Cu"}
+
+	db.Create(&newRestaurant)
 }

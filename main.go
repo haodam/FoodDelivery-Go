@@ -1,6 +1,7 @@
 package main
 
 import (
+	"FoodDelivery/module/restaurant/transport/ginrestaurant"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -47,22 +48,9 @@ func main() {
 
 	restaurant := v1.Group("/restaurants")
 
-	restaurant.POST("", func(c *gin.Context) {
-		var data Restaurant
+	restaurant.POST("", ginrestaurant.CreateRestaurant(db))
 
-		if err := c.ShouldBind(&data); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		db.Create(&data)
-
-		c.JSON(http.StatusOK, gin.H{
-			"data": data,
-		})
-	})
-
+	//GET BY ID
 	restaurant.GET("/:id", func(c *gin.Context) {
 
 		id, err := strconv.Atoi(c.Param("id"))
@@ -81,13 +69,82 @@ func main() {
 		})
 	})
 
+	//GET LIST
 	restaurant.GET("", func(c *gin.Context) {
 		var data []Restaurant
 
-		db.Order("id desc").Find(&data)
+		type Paging struct {
+			Page  int `json:"page" form:"page"`
+			Limit int `json:"limit" form:"limit"`
+		}
+
+		var pagingData Paging
+
+		c.ShouldBind(&pagingData)
+		if err := c.ShouldBind(&pagingData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if pagingData.Page <= 0 {
+			pagingData.Page = 1
+		}
+		if pagingData.Limit <= 0 {
+			pagingData.Limit = 5
+		}
+
+		db.Offset((pagingData.Page - 1) * pagingData.Limit).
+			Order("id desc").Limit(pagingData.Limit).Find(&data)
 
 		c.JSON(http.StatusOK, gin.H{
 			"data": data,
+		})
+	})
+
+	//UPDATE
+	restaurant.PATCH("/:id", func(c *gin.Context) {
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		var data RestaurantUpdate
+
+		if err := c.ShouldBind(&data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		db.Where("id =?", id).Updates(&data)
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": data,
+		})
+	})
+
+	//DELETE
+	restaurant.DELETE("/:id", func(c *gin.Context) {
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		//var data RestaurantUpdate
+
+		db.Table(Restaurant{}.TableName()).Where("id =?", id).Delete(nil)
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": 1,
 		})
 	})
 

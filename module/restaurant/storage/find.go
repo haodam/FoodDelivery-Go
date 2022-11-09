@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-func (s *sqlStore) FindRestaurantWithCondition(context context.Context, condition map[string]interface{},
+func (s *sqlStore) FindRestaurantWithCondition(ctx context.Context, condition map[string]interface{},
 	moreKeys ...string) (*restaurantmodel.Restaurant, error) {
 
 	var data restaurantmodel.Restaurant

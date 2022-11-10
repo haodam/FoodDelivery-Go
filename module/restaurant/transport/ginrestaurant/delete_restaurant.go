@@ -1,6 +1,7 @@
 package ginrestaurant
 
 import (
+	"FoodDelivery/common"
 	"FoodDelivery/component/appctx"
 	restaurantbiz "FoodDelivery/module/restaurant/biz"
 	restaurantstorage "FoodDelivery/module/restaurant/storage"
@@ -29,9 +30,7 @@ func DeleteRestaurant(appCtx appctx.AppContext) func(c *gin.Context) {
 			})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"data": 1,
-		})
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
 
 	}
 }

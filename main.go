@@ -35,7 +35,9 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(db, err)
+	//log.Println(db, err)
+
+	db = db.Debug()
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -73,38 +75,7 @@ func main() {
 	})
 
 	//GET LIST
-	restaurant.GET("", func(c *gin.Context) {
-		var data []Restaurant
-
-		type Paging struct {
-			Page  int `json:"page" form:"page"`
-			Limit int `json:"limit" form:"limit"`
-		}
-
-		var pagingData Paging
-
-		c.ShouldBind(&pagingData)
-		if err := c.ShouldBind(&pagingData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		if pagingData.Page <= 0 {
-			pagingData.Page = 1
-		}
-		if pagingData.Limit <= 0 {
-			pagingData.Limit = 5
-		}
-
-		db.Offset((pagingData.Page - 1) * pagingData.Limit).
-			Order("id desc").Limit(pagingData.Limit).Find(&data)
-
-		c.JSON(http.StatusOK, gin.H{
-			"data": data,
-		})
-	})
+	restaurant.GET("", ginrestaurant.ListRestaurant(appContext))
 
 	//UPDATE
 	restaurant.PATCH("/:id", func(c *gin.Context) {

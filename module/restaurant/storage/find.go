@@ -9,7 +9,7 @@ func (s *sqlStore) FindRestaurantWithCondition(ctx context.Context, condition ma
 	moreKeys ...string) (*restaurantmodel.Restaurant, error) {
 
 	var data restaurantmodel.Restaurant
-	if err := s.db.Where(condition).Find(&data).Error; err != nil {
+	if err := s.db.Where(condition).First(&data).Error; err != nil {
 		return nil, err
 	}
 	return &data, nil

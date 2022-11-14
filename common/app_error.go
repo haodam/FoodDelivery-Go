@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var RecordNotFound = errors.New("record not found")
+
 type AppError struct {
 	StatusCode int    `json:"status_code"`
 	RootErr    error  `json:"-"`

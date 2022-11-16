@@ -23,7 +23,6 @@ func (s *sqlStore) ListDataWithCondition(ctx context.Context, filter *restaurant
 
 	if err := db.Count(&paging.Total).Error; err != nil {
 		return nil, common.ErrDB(err)
-
 	}
 
 	offset := (paging.Page - 1) * paging.Limit

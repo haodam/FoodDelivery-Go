@@ -16,14 +16,14 @@ func ListRestaurant(appCtx appctx.AppContext) func(c *gin.Context) {
 
 		var pagingData common.Paging
 		if err := c.ShouldBind(&pagingData); err != nil {
-			panic(err)
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		pagingData.Fulfill()
 
 		var filter restaurantmodel.Filter
 		if err := c.ShouldBind(&filter); err != nil {
-			panic(err)
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		filter.Status = []int{1}
@@ -36,6 +36,10 @@ func ListRestaurant(appCtx appctx.AppContext) func(c *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
+		for i := range result {
+			result[i].Mask(false)
+		}
+
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, pagingData, filter))
 	}
 }
